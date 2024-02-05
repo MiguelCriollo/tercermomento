@@ -4,17 +4,19 @@ import { Subtitle } from "~/tamagui.config";
 import { Pressable } from "react-native";
 import { useState } from "react";
 import EditModal from "~/app/components/EditModal";
-export function CardDemo({setShowEditModal}) {
+export function BasicCards({setShowEditModal, data}) {
 console.log("Edit Modal=>",setShowEditModal);
   return (
     <XStack $sm={{ flexDirection: 'column' }} paddingHorizontal="$4" space>
-      <DemoCard
-      showEditModal={setShowEditModal}
-      />
+      {data.map((value,index)=>{
+        return(<DemoCard key={index} data={value}
+          showEditModal={setShowEditModal}
+        />)
+      })}
     </XStack>
   );
 }
-export function DemoCard({showEditModal}) {
+export function DemoCard({showEditModal, data}) {
   const editModal=()=>{
     showEditModal(true);
   }
@@ -29,16 +31,16 @@ export function DemoCard({showEditModal}) {
           pressStyle={{ scale: 0.875 }}
     >
       <Card.Header padded>
-        <H3>FILM 1</H3>
-        <H5>DIRECTOR: <H6>Juanito Perez</H6></H5>
-        <H5>TIME: <H6>240min</H6></H5>
+        <H3>{data.title}</H3>
+        <H5>DIRECTOR: <H6>{data.director}</H6></H5>
+        <H5>TIME: <H6>{data.duration+"min"}</H6></H5>
+        <H5>Budget: <H6>{data.budget+"$"}</H6></H5>
       </Card.Header>
       <Card.Footer padded>
         <XStack flex={1} />
         <Pressable
           style={{ marginHorizontal: 5 }}
           onPress={() => {
-            alert('Edit Button');
             editModal();
           }}>
           <Image source={require('../../assets/EditIcon.png')} />

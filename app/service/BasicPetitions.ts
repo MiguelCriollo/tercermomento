@@ -1,6 +1,6 @@
 import axios from 'axios'
-const baseUrl = 'https://localhost:8081';
+const baseUrl = 'http://localhost:8082/';
 
-const fetchFilms=async ()=>{
-  return await axios.get(`${baseUrl}/films`);
+export const fetchFilms=async ()=>{
+  return await axios.get(`${baseUrl}/film`);
 }
