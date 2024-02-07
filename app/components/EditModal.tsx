@@ -1,15 +1,37 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from "react";
 import { Alert, Modal, StyleSheet, Text, Pressable, View, Image, TextInput, Platform } from "react-native";
 import { Button, H3, Input, TextArea } from "tamagui";
 import { Stack } from "expo-router";
 import { Cancel } from "axios";
 import { Feather } from "@expo/vector-icons";
 
-const EditModal = ({closeEditModal}) => {
+const EditModal = ({closeEditModal,isCreate, data, saveFilm}: { closeEditModal: () => void, isCreate: boolean, data: any[], saveFilm:(ruta:string,form:string)=> void }) => {
+
+  const [form,setForm]=useState({})
+  const [formModel, setFormModel]=useState<string[]>([])
+  function createForm(){
+    console.log("Data??",data[0])
+    const keys = Object.keys(data[0]);
+
+    for (const key of keys) {
+      if(key=="0"||key==="id"||key==="key"){continue}
+      setForm((prev)=>{return { ...prev, [key]: "" };})
+      setFormModel((prev)=>{return [...prev, key]})
+    }
+  }
+  const handleChange = (name,newValue) => {
+
+    console.log("Value: ",newValue)
+    setForm(prevState => ({
+      ...prevState,
+      [name]: newValue
+    }));
+    console.log("E=>",form)
+  };
   const confirmFormUpload = () => {
     if(Platform.OS==='web'){
       if(confirm("Seguro de subir los siguientes datos?")){
-        console.log("Aceptado")
+        saveFilm("film",form)
       }else{console.log("Rechazado")}
     }
     return Alert.alert("Subida de Datos", "Esta seguro de subir los cambios realizados?", [
@@ -18,9 +40,15 @@ const EditModal = ({closeEditModal}) => {
         onPress: () => console.log("Cancel Pressed"),
         style: "cancel"
       },
-      { text: "ACEPTAR", onPress: () => console.log("OK Pressed") }
+      { text: "ACEPTAR", onPress: () => saveFilm('film',form) }
     ]);
   }
+
+  useEffect(() => {
+    setForm({})
+    setFormModel([])
+    createForm()
+  }, []);
   return (
 
     <View style={styles.centeredView}>
@@ -46,21 +74,38 @@ const EditModal = ({closeEditModal}) => {
               <Image style={{resizeMode:'contain', width:'100%',height:'100%'}} source={require('../../assets/MovieLogo.png')} />
             </View>
             <View style={styles.modalBodyView} >
-              <View style={{width:'100%'}}>
-                <H3>Title1</H3>
-                <Input keyboardType={"numeric"} borderWidth={2} width={200} maxWidth={200} style={{backgroundColor:'black'}}/>
-              </View>
-              <View style={{width:'100%'}}>
-                <H3>Title2</H3>
-                <Input borderWidth={2} width={200} maxWidth={200} style={{backgroundColor:'black'}}/>
-              </View>
-              <View style={{width:'100%'}}>
-                <H3>Title3</H3>
-                <Input borderWidth={2} width={200} maxWidth={200} style={{backgroundColor:'black'}}/>
-              </View>
+            {isCreate?
+              formModel.map((value,index)=>{
+                console.log(value)
+                return(
+                  <View style={{width:'100%'}}>
+                    <H3>{value}</H3>
+                    <Input
+                      value={form[value]}
+                      componentName={value}
+                      onChangeText={newValue => handleChange(value,newValue)}
+                      borderWidth={2} width={200} maxWidth={200} style={{backgroundColor:'black'}}/>
+                  </View>
+                )
+                })
+              :(<>
+                <View style={{width:'100%'}}>
+                  <H3>Title1</H3>
+                  <Input keyboardType={"numeric"} borderWidth={2} width={200} maxWidth={200} style={{backgroundColor:'black'}}/>
+                </View>
+                <View style={{width:'100%'}}>
+                  <H3>Title2</H3>
+                  <Input borderWidth={2} width={200} maxWidth={200} style={{backgroundColor:'black'}}/>
+                </View>
+                <View style={{width:'100%'}}>
+                  <H3>Title3</H3>
+                  <Input borderWidth={2} width={200} maxWidth={200} style={{backgroundColor:'black'}}/>
+                </View>
+              </>)
+            }
             </View>
             <View style={styles.modalBottomView}>
-              <Button onPress={confirmFormUpload} style={{backgroundColor: '#752D59', width:'80%' }}>Create X</Button>
+              <Button onPress={confirmFormUpload} style={{backgroundColor: '#752D59', width:'80%' }}>{isCreate?"Create":"Edit"}</Button>
             </View>
           </View>
         </View>

@@ -14,16 +14,31 @@ export default function Details() {
   const { name } = useLocalSearchParams();
   const router = useRouter();
   const [showEditModal, setShowEditModal]=useState(false);
+  const [isCreateModal, setIsCreateModal]=useState(false);
   const [data, setData]=useState([]);
-  const baseUrl = 'http://10.0.12.82:8082';
+  const baseUrl = 'http://192.168.1.8:8082';
   const fetchFilms = async (ruta) => {
     const url = `${baseUrl}/${ruta}`;
     const response = await axios.get(url);
     setData(response.data);
     console.log(response.data);
   };
+  const saveFilm = async (ruta,form) => {
+    const url = `${baseUrl}/${ruta}`;
+    console.log(url)
+    const response = await axios.post(url,form).catch((error)=>{console.log("Error:")});
+    console.log(response?.data);
+  };
+
+  const deleteFilm = async (ruta,id) => {
+    const url = `${baseUrl}/${ruta}`;
+    console.log(url)
+    const response = await axios.delete(`${url}/delete/${id}`).catch((error)=>{console.log("Error:")});
+    console.log(response?.data);
+  };
 
   useEffect(() => {
+    setData([])
     fetchFilms("film");
   }, []);
 
@@ -32,7 +47,8 @@ export default function Details() {
   }
 
   const closeEditModal=()=>{
-    setShowEditModal(!showEditModal)
+    setShowEditModal(false)
+    setIsCreateModal(false)
   }
 
   const BackButton = () => (
@@ -68,14 +84,15 @@ export default function Details() {
           <Pressable
             style={{borderWidth: 4, borderRadius: 50, borderColor: 'white'}}
             onPress={() => {
-              console.log("Add X")
+              setIsCreateModal(true)
+              openEditModal();
             }}>
             <Image source={require('../assets/AddButton.png')} />
           </Pressable>
         </View>
       </Main>
       {showEditModal&&
-        <EditModal closeEditModal={closeEditModal}></EditModal>
+        <EditModal data={data} closeEditModal={closeEditModal} isCreate={isCreateModal} saveFilm={saveFilm}/>
       }
     </Container>
   );

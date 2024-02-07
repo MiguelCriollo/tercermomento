@@ -4,8 +4,9 @@ import { Subtitle } from "~/tamagui.config";
 import { Pressable } from "react-native";
 import { useState } from "react";
 import EditModal from "~/app/components/EditModal";
+import { deleteFilm } from "~/app/service/BasicPetitions";
 export function BasicCards({setShowEditModal, data}) {
-console.log("Edit Modal=>",setShowEditModal);
+console.log("Edit Modal=>",data);
   return (
     <XStack $sm={{ flexDirection: 'column' }} paddingHorizontal="$4" space>
       {data.map((value,index)=>{
@@ -17,6 +18,10 @@ console.log("Edit Modal=>",setShowEditModal);
   );
 }
 export function DemoCard({showEditModal, data}) {
+  console.log("Data:",data)
+  const handleDelete=(id)=>{
+    deleteFilm("film",id)
+  }
   const editModal=()=>{
     showEditModal(true);
   }
@@ -48,7 +53,7 @@ export function DemoCard({showEditModal, data}) {
         <Pressable
           style={{ marginHorizontal: 5 }}
           onPress={() => {
-            alert('Delete Button');
+            handleDelete(data.id)
           }}>
           <Image source={require('../../assets/DeleteIcon.png')} />
         </Pressable>
