@@ -4,8 +4,9 @@ import { Button, H3, Input, TextArea } from "tamagui";
 import { Stack } from "expo-router";
 import { Cancel } from "axios";
 import { Feather } from "@expo/vector-icons";
+import { saveFilm } from "~/app/service/BasicPetitions";
 
-const EditModal = ({closeEditModal,isCreate, data, saveFilm}: { closeEditModal: () => void, isCreate: boolean, data: any[], saveFilm:(ruta:string,form:string)=> void }) => {
+const EditModal = ({closeEditModal,isCreate, data}: { closeEditModal: () => void, isCreate: boolean, data: any[]}) => {
 
   const [form,setForm]=useState({})
   const [formModel, setFormModel]=useState<string[]>([])

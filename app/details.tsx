@@ -11,36 +11,28 @@ import axios from "axios";
 import { Pressable, View } from "react-native";
 
 export default function Details() {
+
+  const [header,setHeader] = useState("film")
+
   const { name } = useLocalSearchParams();
   const router = useRouter();
   const [showEditModal, setShowEditModal]=useState(false);
   const [isCreateModal, setIsCreateModal]=useState(false);
   const [data, setData]=useState([]);
-  const baseUrl = 'http://192.168.1.8:8082';
-  const fetchFilms = async (ruta) => {
-    const url = `${baseUrl}/${ruta}`;
-    const response = await axios.get(url);
-    setData(response.data);
-    console.log(response.data);
-  };
-  const saveFilm = async (ruta,form) => {
-    const url = `${baseUrl}/${ruta}`;
-    console.log(url)
-    const response = await axios.post(url,form).catch((error)=>{console.log("Error:")});
-    console.log(response?.data);
-  };
 
-  const deleteFilm = async (ruta,id) => {
-    const url = `${baseUrl}/${ruta}`;
-    console.log(url)
-    const response = await axios.delete(`${url}/delete/${id}`).catch((error)=>{console.log("Error:")});
-    console.log(response?.data);
-  };
 
   useEffect(() => {
     setData([])
-    fetchFilms("film");
+    fetchFilms(header).then((response)=>{setData(response)})
   }, []);
+
+  const changePage=(newPage)=>{
+    setData(newPage)
+  }
+
+  const changeHeader=(newHeader)=>{
+    setHeader(newHeader)
+  }
 
   const openEditModal=()=>{
     setShowEditModal(true)
@@ -75,7 +67,7 @@ export default function Details() {
           <ScrollView>
           <Text color="rgba(255,255,255,0.54)" fontWeight="bold" fontSize={40}>DASHBOARD</Text>
           <Text color='#752D59' fontWeight="bold" fontSize={40}>FILMS</Text>
-          <BasicCards data={data} setShowEditModal={openEditModal}></BasicCards>
+          <BasicCards data={data} setShowEditModal={openEditModal} pageChange={changePage} header={header} changeHeader={changeHeader}></BasicCards>
           </ScrollView>
         </YStack>
         <View style={{position: "absolute",
@@ -92,7 +84,7 @@ export default function Details() {
         </View>
       </Main>
       {showEditModal&&
-        <EditModal data={data} closeEditModal={closeEditModal} isCreate={isCreateModal} saveFilm={saveFilm}/>
+        <EditModal data={data} closeEditModal={closeEditModal} isCreate={isCreateModal}/>
       }
     </Container>
   );

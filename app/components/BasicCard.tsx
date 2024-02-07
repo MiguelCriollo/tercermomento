@@ -2,30 +2,60 @@ import { CardProps, H3, H4, H5, H6, Text } from "tamagui";
 import { Button, Card, H2, Image, Paragraph, XStack } from 'tamagui';
 import { Subtitle } from "~/tamagui.config";
 import { Pressable } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import EditModal from "~/app/components/EditModal";
 import { deleteFilm } from "~/app/service/BasicPetitions";
-export function BasicCards({setShowEditModal, data}) {
+export function BasicCards({setShowEditModal, data, pageChange, header ,changeHeader}) {
 console.log("Edit Modal=>",data);
   return (
     <XStack $sm={{ flexDirection: 'column' }} paddingHorizontal="$4" space>
       {data.map((value,index)=>{
         return(<DemoCard key={index} data={value}
-          showEditModal={setShowEditModal}
+          showEditModal={setShowEditModal} pageChange={pageChange} header={header} changeHeader={changeHeader}
         />)
       })}
     </XStack>
   );
 }
-export function DemoCard({showEditModal, data}) {
+export function DemoCard({showEditModal, data, pageChange, header, changeHeader}) {
+  const [form,setForm]=useState({})
+  const [formModel, setFormModel]=useState<string[]>([])
+
   console.log("Data:",data)
   const handleDelete=(id)=>{
     deleteFilm("film",id)
   }
+
   const editModal=()=>{
     showEditModal(true);
   }
 
+  const changeNewPage=()=>{
+
+    let newHeader=header==="film"?"scene":"character";
+
+    changeHeader(newHeader)
+    pageChange(data[newHeader]);
+  }
+
+  function createForm(){
+    console.log("Data ---->",data)
+    setForm({})
+    setFormModel([])
+    const keys = Object.keys(data);
+
+    for (const key of keys) {
+      if(key=="0"||key==="id"||key==="key"||key==="character"||key==="scene"){continue}
+      setForm((prev)=>{return { ...prev, [key]: "" };})
+      setFormModel((prev)=>{return [...prev, key]})
+    }
+    console.log("Form=>",keys)
+    console.log("Form Model=>",formModel)
+  }
+
+  useEffect(() => {
+    createForm()
+  }, [data]);
   return (
     <Card elevate size="$4" bordered={5}  borderColor={'white'}
           animation="bouncy"
@@ -34,12 +64,16 @@ export function DemoCard({showEditModal, data}) {
           scale={0.9}
           hoverStyle={{ scale: 0.925 }}
           pressStyle={{ scale: 0.875 }}
+          onPress={()=>{
+            changeNewPage()
+          }}
     >
       <Card.Header padded>
-        <H3>{data.title}</H3>
-        <H5>DIRECTOR: <H6>{data.director}</H6></H5>
-        <H5>TIME: <H6>{data.duration+"min"}</H6></H5>
-        <H5>Budget: <H6>{data.budget+"$"}</H6></H5>
+        {formModel.map((value,index)=>{
+          // console.log("Data++++++",data)
+          // console.log("Value++++++",value)
+          return (<H5>{value}: {data[value]} </H5>)
+        })}
       </Card.Header>
       <Card.Footer padded>
         <XStack flex={1} />
