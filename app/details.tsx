@@ -18,19 +18,19 @@ export default function Details() {
   const router = useRouter();
   const [showEditModal, setShowEditModal]=useState(false);
   const [isCreateModal, setIsCreateModal]=useState(false);
-  const [data, setData]=useState([]);
+  const [data, setData]=useState<Array<FetchResponses>>([]);
 
 
   useEffect(() => {
     setData([])
-    fetchFilms(header).then((response)=>{setData(response)})
+    fetchFilms(header).then((response)=>setData(response))
   }, []);
 
-  const changePage=(newPage)=>{
+  const changePage=(newPage:Array<FetchResponses>)=>{
     setData(newPage)
   }
 
-  const changeHeader=(newHeader)=>{
+  const changeHeader=(newHeader:string)=>{
     setHeader(newHeader)
   }
 
@@ -66,7 +66,7 @@ export default function Details() {
         <YStack>
           <ScrollView>
           <Text color="rgba(255,255,255,0.54)" fontWeight="bold" fontSize={40}>DASHBOARD</Text>
-          <Text color='#752D59' fontWeight="bold" fontSize={40}>FILMS</Text>
+          <Text color='#752D59' fontWeight="bold" fontSize={40}>{header.toUpperCase()}</Text>
           <BasicCards data={data} setShowEditModal={openEditModal} pageChange={changePage} header={header} changeHeader={changeHeader}></BasicCards>
           </ScrollView>
         </YStack>
@@ -84,7 +84,7 @@ export default function Details() {
         </View>
       </Main>
       {showEditModal&&
-        <EditModal data={data} closeEditModal={closeEditModal} isCreate={isCreateModal}/>
+        <EditModal data={data} closeEditModal={closeEditModal} isCreate={isCreateModal} header={header}/>
       }
     </Container>
   );

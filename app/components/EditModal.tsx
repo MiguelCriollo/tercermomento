@@ -6,7 +6,7 @@ import { Cancel } from "axios";
 import { Feather } from "@expo/vector-icons";
 import { saveFilm } from "~/app/service/BasicPetitions";
 
-const EditModal = ({closeEditModal,isCreate, data}: { closeEditModal: () => void, isCreate: boolean, data: any[]}) => {
+const EditModal = ({closeEditModal,isCreate, data, header}: { closeEditModal: () => void, isCreate: boolean, data: any[], header: string}) => {
 
   const [form,setForm]=useState({})
   const [formModel, setFormModel]=useState<string[]>([])
@@ -15,12 +15,12 @@ const EditModal = ({closeEditModal,isCreate, data}: { closeEditModal: () => void
     const keys = Object.keys(data[0]);
 
     for (const key of keys) {
-      if(key=="0"||key==="id"||key==="key"){continue}
+      if(key=="0"||key==="id"||key==="key"||key==="character"||key==="scene"){continue}
       setForm((prev)=>{return { ...prev, [key]: "" };})
       setFormModel((prev)=>{return [...prev, key]})
     }
   }
-  const handleChange = (name,newValue) => {
+  const handleChange = (name:string,newValue:string) => {
 
     console.log("Value: ",newValue)
     setForm(prevState => ({
@@ -32,7 +32,7 @@ const EditModal = ({closeEditModal,isCreate, data}: { closeEditModal: () => void
   const confirmFormUpload = () => {
     if(Platform.OS==='web'){
       if(confirm("Seguro de subir los siguientes datos?")){
-        saveFilm("film",form)
+        saveFilm(header,form)
       }else{console.log("Rechazado")}
     }
     return Alert.alert("Subida de Datos", "Esta seguro de subir los cambios realizados?", [
@@ -41,7 +41,7 @@ const EditModal = ({closeEditModal,isCreate, data}: { closeEditModal: () => void
         onPress: () => console.log("Cancel Pressed"),
         style: "cancel"
       },
-      { text: "ACEPTAR", onPress: () => saveFilm('film',form) }
+      { text: "ACEPTAR", onPress: () => {console.log("Form To Upload:",form); return saveFilm(header,form)} }
     ]);
   }
 
@@ -61,7 +61,7 @@ const EditModal = ({closeEditModal,isCreate, data}: { closeEditModal: () => void
           <View style={styles.modalView}>
             <View style={styles.modalHeaderView}>
               <View style={{flex:1}}>
-                <H3 style={{fontWeight:900, color:'rgba(255,255,255,0.54)'}}>FILMS</H3>
+                <H3 style={{fontWeight:900, color:'rgba(255,255,255,0.54)'}}>{header.toUpperCase()}</H3>
               </View>
               <View>
                 <Pressable
@@ -75,8 +75,8 @@ const EditModal = ({closeEditModal,isCreate, data}: { closeEditModal: () => void
               <Image style={{resizeMode:'contain', width:'100%',height:'100%'}} source={require('../../assets/MovieLogo.png')} />
             </View>
             <View style={styles.modalBodyView} >
-            {isCreate?
-              formModel.map((value,index)=>{
+            {isCreate
+              ? formModel.map((value,index)=>{
                 console.log(value)
                 return(
                   <View style={{width:'100%'}}>
