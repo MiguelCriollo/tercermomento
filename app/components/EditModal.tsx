@@ -6,8 +6,8 @@ import { Cancel } from "axios";
 import { Feather } from "@expo/vector-icons";
 import { saveFilm } from "~/app/service/BasicPetitions";
 
-const EditModal = ({closeEditModal,isCreate, data, header}: { closeEditModal: () => void, isCreate: boolean, data: any[], header: string}) => {
-
+const EditModal = ({closeEditModal,isCreate, data, header, currentProfile}: { closeEditModal: () => void, isCreate: boolean, data: any[], header: string, currentProfile: FetchResponses}) => {
+  console.log("DATA RECEIVED: ",data)
   const [form,setForm]=useState({})
   const [formModel, setFormModel]=useState<string[]>([])
   function createForm(){
@@ -30,6 +30,14 @@ const EditModal = ({closeEditModal,isCreate, data, header}: { closeEditModal: ()
     console.log("E=>",form)
   };
   const confirmFormUpload = () => {
+    console.log("Is Create: ",isCreate)
+    if(!isCreate){
+      console.log('---------------------');
+      setForm((prevState:{})=>{
+        console.log("ALGO",{ ...prevState, id: currentProfile.id })
+        return { ...prevState, id: currentProfile.id };
+      })
+    }
     if(Platform.OS==='web'){
       if(confirm("Seguro de subir los siguientes datos?")){
         saveFilm(header,form)
@@ -75,38 +83,23 @@ const EditModal = ({closeEditModal,isCreate, data, header}: { closeEditModal: ()
               <Image style={{resizeMode:'contain', width:'100%',height:'100%'}} source={require('../../assets/MovieLogo.png')} />
             </View>
             <View style={styles.modalBodyView} >
-            {isCreate
-              ? formModel.map((value,index)=>{
-                console.log(value)
-                return(
-                  <View style={{width:'100%'}}>
-                    <H3>{value}</H3>
-                    <Input
-                      value={form[value]}
-                      componentName={value}
-                      onChangeText={newValue => handleChange(value,newValue)}
-                      borderWidth={2} width={200} maxWidth={200} style={{backgroundColor:'black'}}/>
-                  </View>
-                )
-                })
-              :(<>
+            {formModel.map((value,index)=>{
+              console.log(value)
+              return(
                 <View style={{width:'100%'}}>
-                  <H3>Title1</H3>
-                  <Input keyboardType={"numeric"} borderWidth={2} width={200} maxWidth={200} style={{backgroundColor:'black'}}/>
+                  <H3>{value}</H3>
+                  <Input
+                    value={form[value]}
+                    componentName={value}
+                    onChangeText={newValue => handleChange(value,newValue)}
+                    borderWidth={2} width={200} maxWidth={200} style={{backgroundColor:'black'}}/>
                 </View>
-                <View style={{width:'100%'}}>
-                  <H3>Title2</H3>
-                  <Input borderWidth={2} width={200} maxWidth={200} style={{backgroundColor:'black'}}/>
-                </View>
-                <View style={{width:'100%'}}>
-                  <H3>Title3</H3>
-                  <Input borderWidth={2} width={200} maxWidth={200} style={{backgroundColor:'black'}}/>
-                </View>
-              </>)
+              )
+            })
             }
             </View>
             <View style={styles.modalBottomView}>
-              <Button onPress={confirmFormUpload} style={{backgroundColor: '#752D59', width:'80%' }}>{isCreate?"Create":"Edit"}</Button>
+              <Button onPress={confirmFormUpload} style={{backgroundColor: '#752D59', width:'80%', alignSelf: 'flex-start' }}>{isCreate?"Create":"Edit"}</Button>
             </View>
           </View>
         </View>

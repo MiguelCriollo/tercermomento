@@ -19,12 +19,17 @@ export default function Details() {
   const [showEditModal, setShowEditModal]=useState(false);
   const [isCreateModal, setIsCreateModal]=useState(false);
   const [data, setData]=useState<Array<FetchResponses>>([]);
+  const [currentProfile, setCurrentProfile]=useState<FetchResponses>({});
 
 
   useEffect(() => {
     setData([])
     fetchFilms(header).then((response)=>setData(response))
   }, []);
+
+  const changeCurrentProfile=(currentProfile:FetchResponses) =>{
+    setCurrentProfile(currentProfile)
+  }
 
   const changePage=(newPage:Array<FetchResponses>)=>{
     setData(newPage)
@@ -41,6 +46,10 @@ export default function Details() {
   const closeEditModal=()=>{
     setShowEditModal(false)
     setIsCreateModal(false)
+  }
+
+  const changeIsCreateModel=()=>{
+    setShowEditModal(true);
   }
 
   const BackButton = () => (
@@ -67,7 +76,7 @@ export default function Details() {
           <ScrollView>
           <Text color="rgba(255,255,255,0.54)" fontWeight="bold" fontSize={40}>DASHBOARD</Text>
           <Text color='#752D59' fontWeight="bold" fontSize={40}>{header.toUpperCase()}</Text>
-          <BasicCards data={data} setShowEditModal={openEditModal} pageChange={changePage} header={header} changeHeader={changeHeader}></BasicCards>
+          <BasicCards changeIsCreateModel={changeIsCreateModel} data={data} setShowEditModal={openEditModal} pageChange={changePage} header={header} changeHeader={changeHeader} changeCurrentProfile={changeCurrentProfile}></BasicCards>
           </ScrollView>
         </YStack>
         <View style={{position: "absolute",
@@ -84,7 +93,7 @@ export default function Details() {
         </View>
       </Main>
       {showEditModal&&
-        <EditModal data={data} closeEditModal={closeEditModal} isCreate={isCreateModal} header={header}/>
+        <EditModal data={data} closeEditModal={closeEditModal} isCreate={isCreateModal} header={header} currentProfile={currentProfile}/>
       }
     </Container>
   );

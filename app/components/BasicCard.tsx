@@ -11,6 +11,8 @@ interface BasicCardsProps {
   pageChange: (newPage:Array<FetchResponses>) => void;
   header: string;
   changeHeader: (newHeader: string) => void;
+  changeCurrentProfile: (currentProfile:FetchResponses) => void;
+  changeIsCreateModel: () => void;
 }
 
 interface DemoCardsProps {
@@ -19,20 +21,22 @@ interface DemoCardsProps {
   pageChange: (newPage:Array<FetchResponses>) => void;
   header: string;
   changeHeader: (newHeader: string) => void;
+  changeCurrentProfile: (currentProfile:FetchResponses) => void;
+  changeIsCreateModel: () => void;
 }
-export function BasicCards({setShowEditModal, data, pageChange, header ,changeHeader}:BasicCardsProps) {
+export function BasicCards({setShowEditModal, data, pageChange, header ,changeHeader, changeCurrentProfile, changeIsCreateModel}:BasicCardsProps) {
 console.log("Edit Modal=>",data);
   return (
     <XStack $sm={{ flexDirection: 'column' }} paddingHorizontal="$4" space>
       {data.map((value,index)=>{
         return(<DemoCard key={index} data={value}
           setShowEditModal={setShowEditModal} pageChange={pageChange} header={header} changeHeader={changeHeader}
-        />)
+         changeCurrentProfile={changeCurrentProfile} changeIsCreateModel={changeIsCreateModel}/>)
       })}
     </XStack>
   );
 }
-export function DemoCard({setShowEditModal, data, pageChange, header, changeHeader}:DemoCardsProps) {
+export function DemoCard({setShowEditModal, data, pageChange, header, changeHeader, changeCurrentProfile, changeIsCreateModel}:DemoCardsProps) {
   const [form,setForm]=useState({})
   const [formModel, setFormModel]=useState<string[]>([])
 
@@ -42,6 +46,8 @@ export function DemoCard({setShowEditModal, data, pageChange, header, changeHead
   }
 
   const editModal=()=>{
+    changeIsCreateModel();
+    changeCurrentProfile(data);
     setShowEditModal(true);
   }
 
