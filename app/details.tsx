@@ -48,7 +48,8 @@ export default function Details() {
     setIsCreateModal(false)
   }
 
-  const changeIsCreateModel=()=>{
+  const changeIsCreateModel=(value:boolean)=>{
+    setIsCreateModal(value);
     setShowEditModal(true);
   }
 

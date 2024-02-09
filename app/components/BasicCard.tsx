@@ -5,6 +5,7 @@ import { Pressable } from "react-native";
 import React, { useEffect, useState } from "react";
 import EditModal from "~/app/components/EditModal";
 import { deleteFilm } from "~/app/service/BasicPetitions";
+import { createForms } from "~/app/utils/functions";
 interface BasicCardsProps {
   setShowEditModal: React.Dispatch<React.SetStateAction<boolean>>;
   data: Array<FetchResponses>;
@@ -12,7 +13,7 @@ interface BasicCardsProps {
   header: string;
   changeHeader: (newHeader: string) => void;
   changeCurrentProfile: (currentProfile:FetchResponses) => void;
-  changeIsCreateModel: () => void;
+  changeIsCreateModel: (value:boolean) => void;
 }
 
 interface DemoCardsProps {
@@ -22,56 +23,66 @@ interface DemoCardsProps {
   header: string;
   changeHeader: (newHeader: string) => void;
   changeCurrentProfile: (currentProfile:FetchResponses) => void;
-  changeIsCreateModel: () => void;
+  changeIsCreateModel: (value:boolean) => void;
+  savePrevData: (value:FetchResponses) => void;
+  prevData: FetchResponses;
 }
 export function BasicCards({setShowEditModal, data, pageChange, header ,changeHeader, changeCurrentProfile, changeIsCreateModel}:BasicCardsProps) {
-console.log("Edit Modal=>",data);
+  const [prevData, setPrevData]=useState<FetchResponses>({})
+  const savePrevData=(value)=>{
+    setPrevData(value)
+  }
+
+//console.log("Edit Modal=>",data);
   return (
     <XStack $sm={{ flexDirection: 'column' }} paddingHorizontal="$4" space>
       {data.map((value,index)=>{
         return(<DemoCard key={index} data={value}
           setShowEditModal={setShowEditModal} pageChange={pageChange} header={header} changeHeader={changeHeader}
-         changeCurrentProfile={changeCurrentProfile} changeIsCreateModel={changeIsCreateModel}/>)
+         changeCurrentProfile={changeCurrentProfile} changeIsCreateModel={changeIsCreateModel} savePrevData={savePrevData} prevData={prevData}/>)
       })}
     </XStack>
   );
 }
-export function DemoCard({setShowEditModal, data, pageChange, header, changeHeader, changeCurrentProfile, changeIsCreateModel}:DemoCardsProps) {
-  const [form,setForm]=useState({})
+export function DemoCard({setShowEditModal, data, pageChange, header, changeHeader, changeCurrentProfile, changeIsCreateModel, savePrevData, prevData}:DemoCardsProps) {
+  const [form,setForm]=useState<Forms>({})
   const [formModel, setFormModel]=useState<string[]>([])
-
-  console.log("Data:",data)
+  //console.log("Data:",data)
   const handleDelete=(id:number)=>{
     deleteFilm(header,id)
   }
 
   const editModal=()=>{
-    changeIsCreateModel();
-    changeCurrentProfile(data);
+    changeIsCreateModel(false);
+    if(header==="scene"){
+      (data as Scene).filmId=(prevData as Film).id as number
+    }
+    if(header==="character"){
+      (data as Character).sceneId=(prevData as Scene).id as number
+    }
+    //console.log("Prev State:",prevData)
+    changeCurrentProfile(data)
+    //console.log("Setting Current Profile==>",data)
     setShowEditModal(true);
   }
 
   const changeNewPage=()=>{
 
     let newHeader=header==="film"?"scene":"character";
-
+    //console.log("Setting New Page==>",data)
     changeHeader(newHeader)
-    pageChange((data as any)[newHeader]);
+    if(header!=="character"){pageChange((data as any)[newHeader]);}
+    changeCurrentProfile(data)
+    savePrevData(data)
   }
 
   function createForm(){
-    console.log("Data ---->",data)
-    setForm({})
-    setFormModel([])
-    const keys = Object.keys(data);
-
-    for (const key of keys) {
-      if(key=="0"||key==="id"||key==="key"||key==="character"||key==="scene"){continue}
-      setForm((prev)=>{return { ...prev, [key]: "" };})
-      setFormModel((prev)=>{return [...prev, key]})
-    }
-    console.log("Form=>",keys)
-    console.log("Form Model=>",formModel)
+    let {basicForm,modelBasicForm}=createForms(header,data)
+    console.log("NEW CREATE FORM");
+    console.log("Basic Form-->",basicForm)
+    console.log("ModelBasicForm-->",modelBasicForm)
+    setForm(basicForm);
+    setFormModel(modelBasicForm)
   }
 
   useEffect(() => {

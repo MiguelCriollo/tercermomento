@@ -5,20 +5,36 @@ import { Stack } from "expo-router";
 import { Cancel } from "axios";
 import { Feather } from "@expo/vector-icons";
 import { saveFilm } from "~/app/service/BasicPetitions";
+import { createForms } from "~/app/utils/functions";
 
-const EditModal = ({closeEditModal,isCreate, data, header, currentProfile}: { closeEditModal: () => void, isCreate: boolean, data: any[], header: string, currentProfile: FetchResponses}) => {
-  console.log("DATA RECEIVED: ",data)
-  const [form,setForm]=useState({})
+const EditModal = ({closeEditModal,isCreate, data, header, currentProfile}: { closeEditModal: () => void, isCreate: boolean, data: FetchResponses, header: string, currentProfile: FetchResponses}) => {
+  //console.log("DATA RECEIVED: ",currentProfile)
+  const [form,setForm]=useState<Forms>({})
   const [formModel, setFormModel]=useState<string[]>([])
   function createForm(){
-    console.log("Data??",data[0])
-    const keys = Object.keys(data[0]);
+    let currentProfileAux=currentProfile;
+    if(isCreate){currentProfile={}}
+    let {basicForm,modelBasicForm}=createForms(header,currentProfile,!isCreate?currentProfileAux.id:null)
+    //console.log("NEW CREATE FORM");
+    //console.log("Basic Form-->",basicForm)
+    //console.log("ModelBasicForm-->",modelBasicForm)
 
-    for (const key of keys) {
-      if(key=="0"||key==="id"||key==="key"||key==="character"||key==="scene"){continue}
-      setForm((prev)=>{return { ...prev, [key]: "" };})
-      setFormModel((prev)=>{return [...prev, key]})
-    }
+      if(header==="scene"){
+        if(isCreate){
+          (basicForm as SceneForm).filmId=(currentProfileAux as Scene).id as number
+        }
+
+      }
+      if(header==="character"){
+        if(isCreate){
+          (basicForm as CharacterForm).sceneId=(currentProfileAux as Character).id as number
+        }
+
+      }
+
+
+    setForm(basicForm);
+    setFormModel(modelBasicForm)
   }
   const handleChange = (name:string,newValue:string) => {
 
@@ -84,12 +100,12 @@ const EditModal = ({closeEditModal,isCreate, data, header, currentProfile}: { cl
             </View>
             <View style={styles.modalBodyView} >
             {formModel.map((value,index)=>{
-              console.log(value)
+              //console.log(value)
               return(
                 <View style={{width:'100%'}}>
                   <H3>{value}</H3>
                   <Input
-                    value={form[value]}
+                    value={form[value]?.toString()}
                     componentName={value}
                     onChangeText={newValue => handleChange(value,newValue)}
                     borderWidth={2} width={200} maxWidth={200} style={{backgroundColor:'black'}}/>
